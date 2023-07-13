@@ -16,8 +16,8 @@ def login_page(request):
             if user is not None:
                 login(request, user)
                 return redirect('home')
-        message = 'Identifiants invalides.'
-    return render(request, 'login.html', context={'form': form, 'message': message})
+        message = 'Le nom d\'utilisateur ou le mot de passe que vous avez saisie est incorrecte'
+    return render(request, 'login.html', {'form': form, 'message': message})
 
 
 def logout_user(request):
