@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'authentication',
     'employe',
+    'materiels',
+
 ]
 
 MIDDLEWARE = [
@@ -93,8 +95,9 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'Webpick',
         'USER': 'postgres',
-        'PASSWORD': 'zakaria',
-        'HOST': 'localhost'
+        'PASSWORD': 'ilias',
+        'HOST': 'localhost',
+        'PORT':'5433',
     }
 }
 

@@ -1,0 +1,216 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Page Heading -->
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Liste materiel Wpk</h1>
+
+
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    <!-- Button trigger modal -->
+    <button type="button" class="d-sm-inline-block btn btn-sm btn-primary shadow-sm" data-toggle="modal"
+        data-target="#exampleModalCenter">
+        Ajouter un nouveau Materiel
+    </button>
+
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog"
+        aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Ajout d un nouveaux materiel</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form class="mx-auto my-4" method="POST">
+                        {% csrf_token %}
+
+                        <div class="form-group">
+                            <label for="categorie">Catégorie</label>
+                            <select id="categorie" name="categorie" class="form-control" onchange="handleCategoryChange(this)">
+                                <option value="" selected>Choisir une catégorie</option>
+                                {% for category in categories %}
+                                <option value="{{ category.idCategory }}">{{ category.nomCategory }}</option>
+                                {% endfor %}
+                                <option value="new">Créer une nouvelle catégorie</option>
+                            </select>
+                        </div>
+
+                        <div id="new_category_input" style="display: none;">
+                            <div class="row justify-content-end">
+                                <div class="form-group col-md-6">
+                                    <label for="new_category_name">Nom de la catégorie</label>
+                                    <input type="text" id="new_category_name" name="new_category_name"
+                                        class="form-control">
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label for="new_category_description">Description de la catégorie</label>
+                                    <textarea id="new_category_description" name="new_category_description"
+                                        class="form-control"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="sub_category">Sous-catégorie</label>
+                            <select id="sub_category" name="sub_category" class="form-control"
+                                onchange="handleSubCategoryChange(this)">
+                                <option value="" selected>Choisir une sous-catégorie</option>
+                                {% for sous_category in sub_categories %}
+                                <option value="{{ sous_category.idSousCategorie }}">{{ sous_category.nomSousCategory }}</option>
+                                {% endfor %}
+                                <option value="new">Créer une nouvelle sous-catégorie</option>
+                            </select>
+                        </div>
+
+                        <div id="new_sub_category_input" style="display: none;">
+                            <div class="row justify-content-end">
+
+                                <div class="form-group col-md-6">
+                                    <label for="new_sub_category_name">Nom de la sous-catégorie</label>
+                                    <input type="text" id="new_sub_category_name" name="new_sub_category_name"
+                                        class="form-control">
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label for="new_sub_category_description">Description de la sous-catégorie</label>
+                                    <textarea id="new_sub_category_description" name="new_sub_category_description"
+                                        class="form-control"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="materiel_name">Nom du matériel</label>
+                            <input type="text" id="materiel_name" name="materiel_name" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="num_serie">N° serie du matériel</label>
+                            <input type="text" id="num_serie" name="num_serie" class="form-control">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="materiel_description">Description du matériel</label>
+                            <textarea id="materiel_description" name="materiel_description"
+                                class="form-control"></textarea>
+                        </div>
+
+
+
+                </div>
+                {% if form.errors %}
+    <div class="alert alert-danger">
+        <strong>Erreur de validation :</strong>
+        <ul>
+            {% for field in form %}
+                {% for error in field.errors %}
+                    <li>{{ field.label }}: {{ error }}</li>
+                {% endfor %}
+            {% endfor %}
+        </ul>
+    </div>
+{% endif %}
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+<div class="container">
+
+    <div class="card">
+        <div class="card-header">
+            Catégories
+        </div>
+        <div class="card-body">
+            <div class="list-group">
+                {% for categorie in categories %}
+                <button class="list-group-item list-group-item-action category-row" data-toggle="collapse"
+                    data-target="#sous-categorie-{{ categorie.idCategory }}" aria-expanded="false" style="background-color: #3e98d1; color: white;">
+                    {{ categorie.nomCategory }}
+                </button>
+                <div id="sous-categorie-{{ categorie.idCategory }}" class="collapse">
+                    {% for sous_categorie in categorie.souscategorie_set.all %}
+                    <button class="list-group-item list-group-item-action sub-category-row" data-toggle="collapse"
+                        data-target="#materiel-{{ sous_categorie.idSousCategorie }}" aria-expanded="false" style="background-color: #f7f7f7;">
+                        {{ sous_categorie.nomSousCategory }}
+                    </button>
+                    <div id="materiel-{{ sous_categorie.idSousCategorie }}" class="collapse">
+                        <ul class="list-group">
+                            {% for materiel in sous_categorie.materiel_set.all %}
+                            <li class="list-group-item material-row">{{ materiel.nomMateriel }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script>
+    // Gérer le basculement de la flèche de catégorie lors du clic
+    $('.list-group-item').click(function (event) {
+        event.stopPropagation();
+        $(this).toggleClass('collapsed');
+        var target = $(this).data('target');
+        $(target).toggleClass('show');
+    });
+
+    function handleCategoryChange(select) {
+        var newCategoryInput = document.getElementById("new_category_input");
+        var newCategoryOption = document.querySelector("#category option[value='new']");
+
+        if (select.value === "new") {
+            newCategoryInput.style.display = "block";
+        } else {
+            newCategoryInput.style.display = "none";
+            document.getElementById("new_category_name").value = "";
+            document.getElementById("new_category_description").value = "";
+        }
+    }
+
+    function handleSubCategoryChange(select) {
+        var newSubCategoryInput = document.getElementById("new_sub_category_input");
+        var newSubCategoryOption = document.querySelector("#sub_category option[value='new']");
+
+        if (select.value === "new") {
+            newSubCategoryInput.style.display = "block";
+        } else {
+            newSubCategoryInput.style.display = "none";
+            document.getElementById("new_sub_category_name").value = "";
+            document.getElementById("new_sub_category_description").value = "";
+        }
+    }
+</script>
+
+{% endblock %}
