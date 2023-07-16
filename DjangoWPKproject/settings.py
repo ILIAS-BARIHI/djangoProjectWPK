@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     'authentication',
     'employe',
     'materiels',
+    'fournisseur',
+   
 
 ]
 
@@ -74,6 +76,14 @@ TEMPLATES = [
 WSGI_APPLICATION = 'DjangoWPKproject.wsgi.application'
 
 
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
+    }
+}
+
+
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
@@ -90,16 +100,16 @@ WSGI_APPLICATION = 'DjangoWPKproject.wsgi.application'
 
 
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'Webpick',
-        'USER': 'postgres',
-        'PASSWORD': 'ilias',
-        'HOST': 'localhost',
-        'PORT':'5433',
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'Webpick',
+#         'USER': 'postgres',
+#         'PASSWORD': 'ilias',
+#         'HOST': 'localhost',
+#         'PORT':'5433',
+#     }
+# }
 
 
 # Password validation
