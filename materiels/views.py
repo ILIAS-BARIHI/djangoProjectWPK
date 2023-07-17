@@ -59,3 +59,7 @@ class MaterielListView(View):
         # Ajouter un message d'erreur à afficher
         messages.error(request, "Une erreur s'est produite lors de la soumission du formulaire.")
         return render(request, 'materiels.html', context)
+    
+    
+# def pannes_page(request):
+#     pass

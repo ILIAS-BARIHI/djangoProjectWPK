@@ -1,3 +1,7 @@
 from django.contrib import admin
+from .models import Materiel, Categorie, SousCategorie
 
-# Register your models here.
+
+admin.site.register(Materiel)
+admin.site.register(Categorie)
+admin.site.register(SousCategorie)
