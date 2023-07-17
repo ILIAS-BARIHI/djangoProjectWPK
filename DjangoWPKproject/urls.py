@@ -24,7 +24,9 @@ urlpatterns = [
     path('fournisseurs/', fournisseur.views.fournisseurs_page, name="fournisseurs" ),
     path('fournisseurs/<int:fournisseurs_id>/delete/', fournisseur.views.delete_fournisseur, name='delete_fournisseur'),
     path('fournisseurs/<int:fournisseurs_id>/edit/', fournisseur.views.edit_fournisseur, name='edit_fournisseur'),
+    
     path('pannes/', pannes.views.pannes_page, name="pannes"),
+    path('pannes/toggle/<int:panne_id>/', pannes.views.toggle_panne, name='toggle_panne'),
 
 
 ]
