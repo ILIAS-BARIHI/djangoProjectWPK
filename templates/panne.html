@@ -14,100 +14,9 @@
 
 <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 mb-0">Les pannes en cours</h1>    
-    {% comment %} <button type="button" class="btn btn-primary col-2" data-toggle="modal" data-target="#fournisseurFormModal">Ajouter un fournisseur</button> {% endcomment %}
 </div>
 
-<!-- Modal -->
-<div class="modal fade fournisseur-modal" id="fournisseurFormModal" tabindex="-1" aria-labelledby="fournisseurFormModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="fournisseurFormModalLabel">Nouveau Fournisseur</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body">
-          <form method="post" class="form">
-            {% csrf_token %}
-            <!-- Place your form fields here -->
-            <div class="mb-3">
-              <label for="id_nomFournisseur" class="form-label">Nom</label>
-              <input type="text" class="form-control" id="id_nomFournisseur" name="nomFournisseur" value="{{ form.nomFournisseur.value|default:'' }}">
-              {% if form.nomFournisseur.errors %}
-                <div class="alert alert-danger mt-2">
-                  {{ form.nomFournisseur.errors }}
-                </div>
-              {% endif %}
-            </div>
-
-            <div class="mb-3">
-              <label for="id_adresse" class="form-label">Adresse</label>
-              <input type="text" class="form-control" id="id_adresse" name="adresse" value="{{ form.adresse.value|default:'' }}">
-              {% if form.adresse.errors %}
-                <div class="alert alert-danger mt-2">
-                  {{ form.adresse.errors }}
-                </div>
-              {% endif %}
-            </div>
-
-            <div class="mb-3">
-                <label for="id_email" class="form-label">Email</label>
-                <input type="email" class="form-control" id="id_email" name="email" value="{{ form.email.value|default:'' }}">
-                {% if form.email.errors %}
-                  <div class="alert alert-danger mt-2">
-                    {{ form.email.errors }}
-                  </div>
-                {% endif %}
-              </div>
-              
-              <div class="mb-3">
-                <label for="id_telephone" class="form-label">Téléphone</label>
-                <input type="text" class="form-control" id="id_telephone" name="telephone" value="{{ form.telephone.value|default:'' }}">
-                {% if form.telephone.errors %}
-                  <div class="alert alert-danger mt-2">
-                    {{ form.telephone.errors }}
-                  </div>
-                {% endif %}
-              </div>
-            <!-- Repeat for each field -->
-            <button type="submit" class="btn btn-primary">Enregistrer</button>
-          </form>
-        </div>
-      </div>
-    </div>
-  </div>
-  <!--End modal-->
-
 <div class="card shadow mb-4">
- 
-     <!-- Search Form -->
-<form method="get" action="{% url 'fournisseurs' %}" class="pt-3 pl-3">
-  <div class="row mb-3">
-      <div class="col-md-6">
-          <div class="input-group">
-              <input type="text" class="form-control" name="search_query" placeholder="pannes..." value="{{ search_query|default:'' }}">
-              <div class="input-group-append">
-                  <button class="btn btn-primary" type="submit">
-                      <i class="fas fa-search"></i>
-                  </button>
-              </div>
-              {% if search_query %}
-              <div class="input-group-append">
-                  <a class="btn btn-danger" href="{% url 'fournisseurs' %}">
-                      <i class="fas fa-times"></i>
-                  </a>
-              </div>
-              {% endif %}
-          </div>
-      </div>
-  </div>
-</form>
-<!-- End Search Form -->
-
-
-  
-   
     <div class="card-body">
         <div class="table-responsive">
             <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
@@ -122,14 +31,14 @@
                     </thead>
                     <tbody>
                         {% for panne in pannes %}
-                          <tr>
+                        <tr>
                             <td>{{ panne.materiel.nomMateriel }}</td>
                             <td>{{ panne.date_panne }}</td>
-                            {% comment %} <td>{{ panne.resolue }}</td> {% endcomment %}
                             <td>
-                                <form method="POST" >
+                                <form method="POST" class="toggle-form" action="{% url 'toggle_panne' panne.id %}">
+                                    {% csrf_token %}
                                     <label class="switch">
-                                        <input type="checkbox"  class="toggle-checkbox">
+                                        <input type="checkbox" class="toggle-checkbox" name="panne_status" value="{{ panne.resolue }}" {% if not panne.resolue %}checked{% endif %} data-panne-id="{{ panne.id }}">
                                         <span class="slider round"></span>
                                     </label>
                                 </form>
@@ -137,51 +46,59 @@
                             <td>
                                 <a href="#" class="btn btn-primary">Détails</a>
                             </td>
-                          </tr>
-                          {% comment %} On va mettre les modals ici {% endcomment %}
+                        </tr>
+
+                        <!-- Modal -->
+                        <div class="modal fade" id="toggleConfirmationModal-{{ panne.id }}" tabindex="-1" role="dialog" aria-labelledby="toggleConfirmationModalLabel-{{ panne.id }}" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="toggleConfirmationModalLabel-{{ panne.id }}">Confirmer la résolution de la panne</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p>Êtes-vous sûr de vouloir marquer cette panne comme résolue ?</p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" id="cancel-toggle-{{ panne.id }}" data-dismiss="modal">Annuler</button>
+                                        <button type="button" class="btn btn-success" id="confirm-toggle-{{ panne.id }}">Confirmer</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!--End modal-->
                         {% endfor %}
                     </tbody>
-                      
-                   {% comment %} Les modal de modification et de suppression {% endcomment %}
-                </tbody>
+                </table>
             </table>
-        
         </div>
     </div>
 </div>
 {% endblock %}
 
-{% block extra_js %}
+{% block extra_js_panne %}
 <script>
-  window.onload = function() {
-    // Récupérer le formulaire
-    var form = document.querySelector(".form");
-    // S'il y a des erreurs dans le formulaire, ouvrir la modale
-    if (form.querySelectorAll(".alert-danger").length > 0) {
-      var myModal = new bootstrap.Modal(document.getElementById('fournisseurFormModal'), {})
-      myModal.show();
-    }
-  }
+  let checkboxes = document.querySelectorAll('.toggle-checkbox');
+
+  checkboxes.forEach((checkbox) => {
+      checkbox.addEventListener('change', (event) => {
+          let modal = new bootstrap.Modal(document.querySelector('#toggleConfirmationModal-' + event.target.getAttribute('data-panne-id')), {});
+          let submitBtn = document.querySelector('#confirm-toggle-' + event.target.getAttribute('data-panne-id'));
+          let cancelBtn = document.querySelector('#cancel-toggle-' + event.target.getAttribute('data-panne-id'));
+          let form = event.target.closest('.toggle-form');
+
+          submitBtn.onclick = function () {
+              form.submit();
+          };
+
+          cancelBtn.onclick = function () {
+              event.target.checked = !event.target.checked;
+          };
+
+          modal.show();
+      });
+  });
 </script>
 {% endblock %}
-
-
-{% block extra_js %}
-<script>
-    let checkboxes = document.querySelectorAll('.toggle-checkbox');
-
-    checkboxes.forEach((checkbox) => {
-        checkbox.addEventListener('change', (event) => {
-            let form = event.target.closest('.toggle-form');
-            form.submit();
-        });
-    });
-</script>
-{% endblock %}
-
-<script src="{% static 'js/demo/datatables-demo.js' %}"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js"></script>
-<script src="{% static 'js/sb-admin-2.min.js' %}"></script>
-<script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.10.24/js/dataTables.bootstrap4.min.js"></script>

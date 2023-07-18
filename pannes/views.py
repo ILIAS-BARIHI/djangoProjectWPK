@@ -18,14 +18,19 @@ def pannes_page(request):
     # Pour chaque matériel en panne, vérifier s'il y a déjà une panne existante pour ce matériel.
     # Si ce n'est pas le cas, créer une nouvelle panne.
     for materiel in materiels_en_panne:
-        if not Panne.objects.filter(materiel=materiel).exists():
+        if not Panne.objects.filter(materiel=materiel, resolue=False).exists():
             Panne.objects.create(materiel=materiel, description="Description de la panne...")
 
-    # Récupérer toutes les pannes pour les afficher
-    pannes = Panne.objects.all()
+    # Récupérer toutes les pannes non résolues pour les afficher
+    pannes = Panne.objects.filter(resolue=False)
 
     return render(request, 'panne.html', {'pannes': pannes})
 
 @require_POST
-def toggle_panne(request):
-    pass
+def toggle_panne(request, panne_id):
+    panne = Panne.objects.get(id=panne_id)
+    panne.resolue = True
+    panne.materiel.en_panne = False  # Pour mettre à jour l'état du matériel correspondant
+    panne.materiel.save()  # Sauvegarder les modifications du matériel
+    panne.save()  # Sauvegarder les modifications de la panne
+    return redirect('pannes')
