@@ -3,6 +3,7 @@ from .models import Panne
 from materiels.models import Materiel
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
+from django.db.models import Q
 
 
 # def pannes_page(request):
@@ -21,10 +22,22 @@ def pannes_page(request):
         if not Panne.objects.filter(materiel=materiel, resolue=False).exists():
             Panne.objects.create(materiel=materiel, description="Description de la panne...")
 
-    # Récupérer toutes les pannes non résolues pour les afficher
-    pannes = Panne.objects.filter(resolue=False)
+    # Récupérer la requête de recherche
+    search_query = request.GET.get('search_query')
 
-    return render(request, 'panne.html', {'pannes': pannes})
+    if search_query:
+        # Si une recherche a été effectuée, filtrer les pannes non résolues en fonction de la requête de recherche
+        pannes = Panne.objects.filter(
+            Q(materiel__nomMateriel__icontains=search_query) |  # on cherche dans le nom du materiel
+            Q(description__icontains=search_query),  # ou dans la description
+            resolue=False  # on ne veut que les pannes non résolues
+        )
+    else:
+        # Récupérer toutes les pannes non résolues pour les afficher
+        pannes = Panne.objects.filter(resolue=False)
+
+    return render(request, 'panne.html', {'pannes': pannes, 'search_query': search_query})
+
 
 @require_POST
 def toggle_panne(request, panne_id):
