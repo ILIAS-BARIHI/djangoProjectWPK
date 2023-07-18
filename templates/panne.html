@@ -17,6 +17,31 @@
 </div>
 
 <div class="card shadow mb-4">
+
+     <!-- Search Form -->
+<form method="get" action="{% url 'pannes' %}" class="pt-3 pl-3">
+  <div class="row mb-3">
+      <div class="col-md-6">
+          <div class="input-group">
+              <input type="text" class="form-control" name="search_query" placeholder="Search for pannes..." value="{{ search_query|default:'' }}">
+              <div class="input-group-append">
+                  <button class="btn btn-primary" type="submit">
+                      <i class="fas fa-search"></i>
+                  </button>
+              </div>
+              {% if search_query %}
+              <div class="input-group-append">
+                  <a class="btn btn-danger" href="{% url 'fournisseurs' %}">
+                      <i class="fas fa-times"></i>
+                  </a>
+              </div>
+              {% endif %}
+          </div>
+      </div>
+  </div>
+</form>
+<!-- End Search Form -->
+
     <div class="card-body">
         <div class="table-responsive">
             <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
